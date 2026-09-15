@@ -1,5 +1,7 @@
 # KeyScope · 快捷键侦探
 
+**中文** | [English](README_EN.md)
+
 找出 Mac 快捷键的接收应用，并查看配置线索。
 
 [产品官网与下载](https://keyscope.tianli.cyou/) · [版本发布](https://github.com/zengtianli/KeyScope/releases) · [问题反馈](https://github.com/zengtianli/KeyScope/issues)
