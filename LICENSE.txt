@@ -1,0 +1,13 @@
+KeyScope binary distribution license
+Copyright (c) 2026 KeyScope. All rights reserved.
+
+You may download and use the unmodified KeyScope application free of charge for
+personal and commercial purposes. You may redistribute an unmodified release
+provided this notice and its attribution remain intact. This permission does
+not grant access to, or an open-source license for, the application's source code.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE COPYRIGHT HOLDER
+IS NOT LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM THE
+SOFTWARE OR ITS USE.
