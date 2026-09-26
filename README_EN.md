@@ -15,6 +15,18 @@ KeyScope is a native shortcut diagnostic tool for recent macOS versions, designe
 
 Requires macOS 14 or later and Apple Silicon. The current verified environment is macOS 27; other system versions have not each been tested.
 
+<!-- lightweight:start -->
+## Lightweight (measured)
+
+| Download | Idle memory | Idle CPU | Full shortcut lookup (same detector as GUI, including process start) |
+|---|---|---|---|
+| **1.2 MB** (installed 1.8 MB) | **24 MB** | **0.03%** | **33 ms** |
+
+SwiftUI and system frameworks with no third-party dependencies; no background process, login item or scheduled job. A listen-only keyboard tap is set up only after you click Start Detection and is removed once a combination arrives; the 2-second permission self-check exists only during detection.
+
+<sub>v1.0.1 · Mac16,12 / Apple M4 / macOS 27.2 · Signed and notarized installed 1.0.1; real local shortcut configuration, read-only lookup · measured 2026-09-26. Memory is phys_footprint (the Memory column in Activity Monitor); CPU is CPU time ÷ wall time over 60 idle seconds; sizes in decimal MB. Raw data: [perf/lightweight.json](perf/lightweight.json).</sub>
+<!-- lightweight:end -->
+
 ## Installation and use
 
 1. Download the DMG directly from the website and drag KeyScope into Applications.
