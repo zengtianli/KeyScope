@@ -16,7 +16,7 @@ KeyScope 是为新版 macOS 制作的原生快捷键诊断工具，面向遇到�
 最低 macOS 14，Apple Silicon。当前真实验收环境为 macOS 27；其他系统版本未逐一实测。
 
 <!-- lightweight:start -->
-## 轻量（本机实测）
+## 资源占用
 
 | 安装包 | 空闲内存 | 空闲 CPU | 完整快捷键查询（同 GUI 检测器，含进程启动） |
 |---|---|---|---|
@@ -24,7 +24,7 @@ KeyScope 是为新版 macOS 制作的原生快捷键诊断工具，面向遇到�
 
 SwiftUI 与系统框架，零第三方依赖；无后台进程、登录项或定时任务。只在点「开始检测」后建立只读键盘监听，收到组合即停止；检测期间每 2 秒自检一次权限，结束即销毁。
 
-<sub>v1.0.1 · Mac16,12 / Apple M4 / macOS 27.2 · 已签名公证的 1.0.1 安装版；本机真实快捷键配置，查询只读 · 2026-09-26 本机实测。内存口径为 phys_footprint；CPU 为 60 秒采样窗内 CPU 时间 ÷ 墙钟；大小按十进制 MB。原始数据见 [perf/lightweight.json](perf/lightweight.json)。</sub>
+<sub>v1.0.1 · Mac16,12 / Apple M4 / macOS 27.2 · 已签名公证的 1.0.1 安装版；本机真实快捷键配置，查询只读 · 2026-09-26。数字来自所列设备实测，版本更新后重新测量。内存口径为 phys_footprint；CPU 为 60 秒采样窗内 CPU 时间 ÷ 墙钟；大小按十进制 MB。实测口径见[官网资源占用](https://keyscope.tianli.cyou/#light)。</sub>
 <!-- lightweight:end -->
 
 ## 安装与使用
