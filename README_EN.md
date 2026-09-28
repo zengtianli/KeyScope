@@ -18,13 +18,13 @@ Requires macOS 14 or later and Apple Silicon. The current verified environment i
 <!-- lightweight:start -->
 ## Resource use
 
-| Download | Idle memory | Idle CPU | Full shortcut lookup (same detector as GUI, including process start) |
+| Download | Idle memory | Idle CPU | Cold launch to window |
 |---|---|---|---|
-| **1.2 MB** (installed 1.8 MB) | **24 MB** | **0.03%** | **33 ms** |
+| **1.2 MB** (installed 1.8 MB) | **25.2 MB** | **0%** | **382 ms** |
 
 SwiftUI and system frameworks with no third-party dependencies; no background process, login item or scheduled job. A listen-only keyboard tap is set up only after you click Start Detection and is removed once a combination arrives; the 2-second permission self-check exists only during detection.
 
-<sub>v1.0.1 · Mac16,12 / Apple M4 / macOS 27.2 · Signed and notarized installed 1.0.1; real local shortcut configuration, read-only lookup · measured 2026-09-26. Measured on the listed device; re-measured for each version. Memory uses phys_footprint; CPU is CPU time ÷ wall time over a 60-second sampling window; sizes in decimal MB. Measurement details: [website resource use](https://keyscope.tianli.cyou/#light).</sub>
+<sub>v1.0.2 · Mac16,12 / Apple M4 / macOS 27.2 · Signed and notarized installed 1.0.2; real local shortcut configuration, read-only lookup · measured 2026-09-29. Measured on the listed device; re-measured for each version. Memory uses phys_footprint; CPU is CPU time ÷ wall time over a 60-second sampling window; sizes in decimal MB. Measurement details: [website resource use](https://keyscope.tianli.cyou/#light).</sub>
 <!-- lightweight:end -->
 
 ## Installation and use
