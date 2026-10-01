@@ -36,6 +36,20 @@ SwiftUI 与系统框架，零第三方依赖；无后台进程、登录项或定
 
 当前发行包已通过 Apple Developer ID 签名和 Apple 公证。首次运行会显示正常的互联网下载确认；完整授权、常见问题和真实视频见官网。
 
+## 命令行
+
+1.0.3 起，App 内带有命令行 `keyscope`，与窗口是同一个程序，供终端、脚本或 Agent 使用：
+
+```bash
+ln -s /Applications/KeyScope.app/Contents/Resources/bin/keyscope ~/.local/bin/keyscope   # 可选：放进 PATH
+keyscope scan ctrl+g --json        # 只读查询 ⌃G 的系统绑定与软件配置
+keyscope detect --timeout 20       # 等你按下一个组合，报告接收它的软件
+keyscope status --json             # 版本、输入监控权限、安全键盘输入
+keyscope help
+```
+
+命令行只读：不写文件、不改配置、不申请权限、不发送或合成按键。`detect` 需要终端已获“输入监控”权限，没有时立即退出（退出码 77）。
+
 ## 检测范围
 
 macOS 不提供一个覆盖所有事件拦截方式的公开接口。KeyScope 可以识别部分系统派发的全局热键接收应用，但不能保证每个快捷键都有唯一归属；某个进程有键盘监听器，也不等于它吞掉了本次按键。没有足够证据时，界面会保留“未确认”的结果。

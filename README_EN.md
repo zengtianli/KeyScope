@@ -36,6 +36,20 @@ SwiftUI and system frameworks with no third-party dependencies; no background pr
 
 The current release is signed with an Apple Developer ID and notarized by Apple. First launch shows the normal confirmation for an internet download. See the website for complete permission instructions, common questions, and real demonstration videos.
 
+## Command line
+
+Since 1.0.3 the app includes the command `keyscope`, the same program as the window, for terminals, scripts and agents:
+
+```bash
+ln -s /Applications/KeyScope.app/Contents/Resources/bin/keyscope ~/.local/bin/keyscope   # optional: put it on PATH
+keyscope scan ctrl+g --json        # read-only lookup of ⌃G in system bindings and app configuration
+keyscope detect --timeout 20       # wait for you to press a combination; report the app that received it
+keyscope status --json             # version, Input Monitoring permission, Secure Input
+keyscope help
+```
+
+The command line is read-only: it writes no files, changes no configuration, requests no permission, and sends or synthesizes no key events. `detect` needs Input Monitoring for the terminal; without it, it exits at once with code 77.
+
 ## Detection scope
 
 macOS does not provide a public API covering every form of event interception. KeyScope can identify recipients of some system-dispatched global hotkeys, but cannot guarantee a unique owner for every shortcut. A process having a keyboard listener also does not prove that it swallowed the current keystroke. When evidence is insufficient, the interface keeps the result marked “Unconfirmed.”
