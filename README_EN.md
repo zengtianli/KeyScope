@@ -54,4 +54,8 @@ The command line is read-only: it writes no files, changes no configuration, req
 
 macOS does not provide a public API covering every form of event interception. KeyScope can identify recipients of some system-dispatched global hotkeys, but cannot guarantee a unique owner for every shortcut. A process having a keyboard listener also does not prove that it swallowed the current keystroke. When evidence is insufficient, the interface keeps the result marked “Unconfirmed.”
 
+## Configuration and updates
+
+Since 1.0.4, Configuration and Updates offers optional iCloud settings sync through the system Apple ID, off by default on a new installation. JSON export and import help move settings between Macs. Check for Updates reads actual releases and provides an upgrade path while preserving settings.
+
 This repository provides product documentation and binary releases, not application source code. It is not affiliated with the original ShortcutDetective author. Please submit reproducible steps through Issues; do not attach private configurations, passwords, or personal data.
