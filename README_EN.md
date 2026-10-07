@@ -16,16 +16,18 @@ KeyScope is a native shortcut diagnostic tool for recent macOS versions, designe
 Requires macOS 14 or later and Apple Silicon. The current verified environment is macOS 27; other system versions have not each been tested.
 
 <!-- lightweight:start -->
-## Resource use
+## Resource use (historical reference: 1.0.4)
 
-| Download | Idle memory | Idle CPU | Cold launch to window |
+| Download | Idle memory | Idle CPU | Speed |
 |---|---|---|---|
-| **1.2 MB** (installed 1.8 MB) | **25.2 MB** | **0%** | **382 ms** |
+| **1.4 MB** (installed 2.3 MB) | **25.2 MB** | **0%** | **336 ms** |
 
 SwiftUI and system frameworks with no third-party dependencies; no background process, login item or scheduled job. A listen-only keyboard tap is set up only after you click Start Detection and is removed once a combination arrives; the 2-second permission self-check exists only during detection.
 
-<sub>v1.0.2 · Mac16,12 / Apple M4 / macOS 27.2 · Signed and notarized installed 1.0.2; real local shortcut configuration, read-only lookup · measured 2026-09-29. Measured on the listed device; re-measured for each version. Memory uses phys_footprint; CPU is CPU time ÷ wall time over a 60-second sampling window; sizes in decimal MB. Measurement details: [website resource use](https://keyscope.tianli.cyou/#light).</sub>
+<sub>v1.0.4 (8) · Mac16,12 / Apple M4 / macOS 27.2 · The installed local acceptance build 1.0.4 (8) (Developer ID signed, not notarized or released) is launched quietly until the first screen is laid out, with no keyboard listener; the full lookup reads the real local shortcut configuration, read-only. Download size is the public 1.0.4 (5) DMG. · measured 2026-10-07. Measured on the listed device; re-measured for each version. Memory uses phys_footprint; CPU is CPU time ÷ wall time over a 60-second sampling window; sizes in decimal MB. Measurement details: [website resource use](https://keyscope.tianli.cyou/#light).</sub>
 <!-- lightweight:end -->
+
+Historical measurements of 1.0.4 (8), with download size from public 1.0.4 (5); these are not new measurements of 1.0.5.
 
 ## Installation and use
 
@@ -44,11 +46,13 @@ Since 1.0.3 the app includes the command `keyscope`, the same program as the win
 ln -s /Applications/KeyScope.app/Contents/Resources/bin/keyscope ~/.local/bin/keyscope   # optional: put it on PATH
 keyscope scan ctrl+g --json        # read-only lookup of ⌃G in system bindings and app configuration
 keyscope detect --timeout 20       # wait for you to press a combination; report the app that received it
-keyscope status --json             # version, Input Monitoring permission, Secure Input
+keyscope status --json             # version, caller and window Input Monitoring, Secure Input
+keyscope update check --json       # latest public release and upgrade options
+keyscope update install --dry-run --json  # preview only; installation requires explicit --yes
 keyscope help
 ```
 
-The command line is read-only: it writes no files, changes no configuration, requests no permission, and sends or synthesizes no key events. `detect` needs Input Monitoring for the terminal; without it, it exits at once with code 77.
+Commands are read-only except `update install --yes`. No command requests permissions or sends or synthesizes key events. Update checks and installation anonymously read public GitHub release information; installation also downloads the package. `detect` needs Input Monitoring for the terminal; without it, it exits at once with code 77.
 
 ## Detection scope
 
@@ -56,6 +60,6 @@ macOS does not provide a public API covering every form of event interception. K
 
 ## Configuration and updates
 
-Since 1.0.4, Configuration and Updates offers optional iCloud settings sync through the system Apple ID, off by default on a new installation. JSON export and import help move settings between Macs. Check for Updates reads actual releases and provides an upgrade path while preserving settings.
+The current version is 1.0.5 (9). Check for Updates reads the latest public release; the window and command line share the same installer. `keyscope update install --yes` verifies the package hash and developer signature before replacing KeyScope, then moves the previous app to the Trash after success. KeyScope has no settings to migrate, so it offers no iCloud configuration sync, import or export. `status` queries the running window's listening state and Input Monitoring permission, or explicitly reports unknown when it is absent.
 
 This repository provides product documentation and binary releases, not application source code. It is not affiliated with the original ShortcutDetective author. Please submit reproducible steps through Issues; do not attach private configurations, passwords, or personal data.
