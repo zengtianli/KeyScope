@@ -4,7 +4,7 @@
 
 找出 Mac 快捷键的接收应用，并查看配置线索。
 
-[产品官网与下载](https://keyscope.tianli.cyou/) · [版本发布](https://github.com/zengtianli/KeyScope/releases) · [问题反馈](https://github.com/zengtianli/KeyScope/issues)
+[产品官网](https://keyscope.tianli.cyou/) · [下载 DMG](https://github.com/zengtianli/KeyScope/releases/download/v1.0.5/KeyScope-1.0.5-arm64.dmg) · [版本发布](https://github.com/zengtianli/KeyScope/releases) · [问题反馈](https://github.com/zengtianli/KeyScope/issues)
 
 KeyScope 是为新版 macOS 制作的原生快捷键诊断工具，面向遇到“某个组合键被占用，却不知道是谁接收”的用户。
 

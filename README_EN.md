@@ -4,7 +4,7 @@
 
 Find the app receiving a Mac keyboard shortcut and inspect configuration clues.
 
-[Product website and downloads](https://keyscope.tianli.cyou/) · [Releases](https://github.com/zengtianli/KeyScope/releases) · [Issue tracker](https://github.com/zengtianli/KeyScope/issues)
+[Product website](https://keyscope.tianli.cyou/) · [Download DMG](https://github.com/zengtianli/KeyScope/releases/download/v1.0.5/KeyScope-1.0.5-arm64.dmg) · [Releases](https://github.com/zengtianli/KeyScope/releases) · [Issue tracker](https://github.com/zengtianli/KeyScope/issues)
 
 KeyScope is a native shortcut diagnostic tool for recent macOS versions, designed for users who know a key combination is being intercepted but cannot tell which app receives it.
 
