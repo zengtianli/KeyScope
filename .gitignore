@@ -1,1 +1,11 @@
-.DS_Store
+/build/
+/.DS_Store
+__pycache__/
+*.pyc
+*.log
+*.key
+*.pem
+*.p12
+*.certSigningRequest
+.env
+.env.*

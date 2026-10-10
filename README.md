@@ -36,7 +36,7 @@ SwiftUI 与系统框架，零第三方依赖；无后台进程、登录项或定
 3. 开始检测，按下要排查的快捷键；快捷键无法录入时使用手动查询。
 4. 查看证据等级和对应说明，再去相关软件设置中调整绑定。
 
-当前发行包已通过 Apple Developer ID 签名和 Apple 公证。首次运行会显示正常的互联网下载确认；完整授权、常见问题和真实视频见官网。
+正式发行包使用 Apple Developer ID 签名，并经过 Apple 公证和装订。首次运行会显示正常的互联网下载确认；完整授权、常见问题和真实视频见官网。
 
 ## 命令行
 
@@ -56,10 +56,27 @@ keyscope help
 
 ## 配置与更新
 
-当前版本为 1.0.5（9）。「检查更新」读取最新公开发行，窗口与命令行使用同一个升级安装器。`keyscope update install --yes` 验证包散列和开发者签名后替换 KeyScope，成功后旧应用移入废纸篓。KeyScope 没有可迁移的设置，因此没有 iCloud 配置同步、导入或导出。`status` 可查询运行中窗口的监听和输入监控状态；窗口未运行时明确返回未知。
+当前正式版本以 [最新 Release](https://github.com/zengtianli/KeyScope/releases/latest) 为准。「检查更新」读取最新公开发行，窗口与命令行使用同一个升级安装器。`keyscope update install --yes` 验证包散列和开发者签名后替换 KeyScope，成功后旧应用移入废纸篓。KeyScope 没有可迁移的设置，因此没有 iCloud 配置同步、导入或导出。`status` 可查询运行中窗口的监听和输入监控状态；窗口未运行时明确返回未知。
 
 ## 检测范围
 
 macOS 不提供一个覆盖所有事件拦截方式的公开接口。KeyScope 可以识别部分系统派发的全局热键接收应用，但不能保证每个快捷键都有唯一归属；某个进程有键盘监听器，也不等于它吞掉了本次按键。没有足够证据时，界面会保留“未确认”的结果。
 
-本仓提供产品说明与二进制发行，不包含应用源码，也与原 ShortcutDetective 作者无隶属关系。请通过 Issues 提交可复现步骤；不要附上私有配置、密码或个人数据。
+## 从源码构建
+
+安装带 Swift 和 macOS SDK 的 Xcode 或 Command Line Tools，选择有效工具链后运行：
+
+```bash
+git clone https://github.com/zengtianli/KeyScope.git
+cd KeyScope
+bash build.sh
+bash scripts/test.sh
+```
+
+产物在 `build/KeyScope.app`，自包含，不依赖作者的共享工具目录。本地构建默认 ad-hoc 签名，不能当作已公证的正式发行包；自行分发时需设置 `CODESIGN_IDENTITY` 为自己的 Developer ID Application 身份并完成 Apple 公证与装订。`BUILD_JOBS` 控制并行编译数，`BUILD_OUT=build/preview` 保留已有构建。退出 KeyScope 后可运行 `bash scripts/install.sh` 安装并链接命令，旧安装会保留以供回滚。
+
+离线测试使用合成快照覆盖解析、证据规则和自动停止，不发送按键、不监听实际输入、不申请权限；真实按键检测需真人验证。[检测核心说明](Sources/Detection/README.md) 列出证据等级和边界。源码快照可能包含尚未发行的改动，正式包与哈希以 Release 为准。共享层未启用的私有更新目录使用通用示例名；KeyScope 的实际更新渠道仍为公开 GitHub Release。
+
+## 许可证与反馈
+
+本仓提供 [MIT License](LICENSE) 下的源码、资源与二进制发行。使用系统框架，不打包第三方源码。本产品与原 ShortcutDetective 作者无隶属关系。请通过 Issues 提交可复现步骤；不要附上私有配置、密码或个人数据。

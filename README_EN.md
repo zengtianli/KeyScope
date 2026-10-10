@@ -60,6 +60,23 @@ macOS does not provide a public API covering every form of event interception. K
 
 ## Configuration and updates
 
-The current version is 1.0.5 (9). Check for Updates reads the latest public release; the window and command line share the same installer. `keyscope update install --yes` verifies the package hash and developer signature before replacing KeyScope, then moves the previous app to the Trash after success. KeyScope has no settings to migrate, so it offers no iCloud configuration sync, import or export. `status` queries the running window's listening state and Input Monitoring permission, or explicitly reports unknown when it is absent.
+The [latest Release](https://github.com/zengtianli/KeyScope/releases/latest) is authoritative for the current official version. Check for Updates reads the latest public release; the window and command line share the same installer. `keyscope update install --yes` verifies the package hash and developer signature before replacing KeyScope, then moves the previous app to the Trash after success. KeyScope has no settings to migrate, so it offers no iCloud configuration sync, import or export. `status` queries the running window's listening state and Input Monitoring permission, or explicitly reports unknown when it is absent.
 
-This repository provides product documentation and binary releases, not application source code. It is not affiliated with the original ShortcutDetective author. Please submit reproducible steps through Issues; do not attach private configurations, passwords, or personal data.
+## Build from source
+
+Install Xcode or Command Line Tools with Swift and the macOS SDK, select a working toolchain, then run:
+
+```bash
+git clone https://github.com/zengtianli/KeyScope.git
+cd KeyScope
+bash build.sh
+bash scripts/test.sh
+```
+
+The self-contained result is `build/KeyScope.app`; the author's shared tools are not required. Local builds default to ad-hoc signing and are not notarized official releases. To distribute your own build, set `CODESIGN_IDENTITY` to your Developer ID Application identity and complete Apple notarization and stapling. `BUILD_JOBS` controls compiler parallelism; `BUILD_OUT=build/preview` preserves an existing build. After quitting KeyScope, `bash scripts/install.sh` installs the build and links the command, retaining the previous installation for rollback.
+
+Offline tests use synthetic snapshots to cover parsing, evidence rules and automatic stopping. They send no keystrokes, observe no actual input and request no permissions; actual shortcut detection needs a person to verify it. The [detection core notes](Sources/Detection/README.md) describe evidence levels and limits. Source snapshots may contain unreleased changes; Releases are authoritative for official binaries and hashes. Unused private-channel directories in shared code use generic example names; KeyScope's active update channel remains the public GitHub Release.
+
+## License and feedback
+
+Source, resources and binary releases are provided under the [MIT License](LICENSE). System frameworks are used; no third-party source is bundled. This product is not affiliated with the original ShortcutDetective author. Please submit reproducible steps through Issues; do not attach private configurations, passwords, or personal data.

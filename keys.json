@@ -1,0 +1,8 @@
+[
+  {"component": "KeyScope", "mode": "app:KeyScope", "key": "cmd+r", "description": "开始 / 停止检测"},
+  {"component": "KeyScope", "mode": "app:KeyScope", "key": "cmd+k", "description": "手动选择"},
+  {"component": "KeyScope", "mode": "app:KeyScope", "key": "cmd+l", "description": "刷新结果"},
+  {"component": "KeyScope", "mode": "app:KeyScope", "key": "cmd+delete", "description": "清空结果"},
+  {"component": "KeyScope", "mode": "app:KeyScope", "key": "cmd+n", "description": "显示主窗口"},
+  {"component": "KeyScope", "mode": "app:KeyScope", "key": "cmd+shift+/", "description": "使用指南与官网（⌘?）"}
+]

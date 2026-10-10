@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>CFBundleIdentifier</key><string>cyou.tianli.keyscope</string>
+  <key>CFBundleName</key><string>KeyScope</string>
+  <key>CFBundleDisplayName</key><string>KeyScope</string>
+  <key>CFBundleExecutable</key><string>KeyScope</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>CFBundleShortVersionString</key><string>1.0.5</string>
+  <key>CFBundleVersion</key><string>10</string>
+  <key>CFBundleIconFile</key><string>AppIcon</string>
+  <key>CFBundleDevelopmentRegion</key><string>zh_CN</string>
+  <key>LSMinimumSystemVersion</key><string>14.0</string>
+  <key>LSApplicationCategoryType</key><string>public.app-category.utilities</string>
+  <key>NSHighResolutionCapable</key><true/>
+  <key>NSPrincipalClass</key><string>NSApplication</string>
+  <key>NSInputMonitoringUsageDescription</key><string>KeyScope 仅在检测期间观察快捷键和接收应用，帮助诊断冲突；不保存输入内容。</string>
+  <key>NSHumanReadableCopyright</key><string>Copyright © 2026 KeyScope. All rights reserved.</string>
+</dict></plist>
