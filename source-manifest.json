@@ -4,40 +4,43 @@
       "sha256": "323083b2985e6362573ad2680b8f0096f16a71669018926e492499b1767df568"
     },
     "Info.plist": {
-      "sha256": "228d210aeb303b53be017cae1d9c78c4368782f8cd432341773c2f02876687d6"
+      "sha256": "3e066e5538ba4a4518515bb8c81249a37c012c5c9090d50344935beee224bfe6"
     },
     "LICENSE": {
       "sha256": "0f82d9812d1a880f7826ace35a226982d286b362d7cdda7577bec0ba285ae280"
     },
     "README.md": {
-      "sha256": "388f717e1676100fd87dd5e43120ac7c1537cc72c4e18f4bf55ad51d8469e1da"
+      "sha256": "79a8b721f7b0fc00eb4710e5721d924654a00d118a52981f1f86cd71434ff5f8"
     },
     "README_EN.md": {
-      "sha256": "dc12279eb1b0a39770a8d2c52312ab0d3110505bb5fa7417e304a40a3b0801f4"
+      "sha256": "eaacbbf3ca474352cdceba2cbe4f7d2413e680ccec35d0ba1232901bde467e33"
     },
     "Resources/AppIcon.icns": {
       "sha256": "8dac2404bc47529a5477611538c49abf58d442a6657663bb4dc5fc579d742fc2"
     },
     "Sources/AppConfiguration.swift": {
-      "sha256": "ba4d6aa1f52966159e5b74b1ca2878734c61cad80355ace25e19c0f44626947f"
+      "sha256": "9aeeb1bd2e7be98ea76f1ccc0eefd062caa4c698287295c9cd675195c4401c6f"
     },
     "Sources/AppLifecycle.swift": {
-      "sha256": "48114855ffc1d66cc378574005fbacdcd82e8c617595c4c7f6c6ad4e805cb765"
+      "sha256": "680d7730834b7d49f517ec1e1ca850c2e47dcbca2d8d2758458efb6cfb490a10"
     },
     "Sources/AppLifecycleCLI.swift": {
-      "sha256": "f33393d954dac50331f4fd650066c6ecea573970d53b50b43e8a86cab708241c"
+      "sha256": "0f197936945a4825935dd9cb8bac2297480ddf0a29c34183fe6d4cef42f52178"
     },
     "Sources/AppLifecycleUI.swift": {
-      "sha256": "6107d9e91f26769341722667f7b1d4d85843ff2c03c159f3456541d756328614"
+      "sha256": "6160059da9ba310c62b81ac0cc71d014b8a25f57054b03e82f4993cdfe229391"
+    },
+    "Sources/AppShortcuts.swift": {
+      "sha256": "cbbf8e9296424fa1ce05bd1be67a4f171a96ba28c00de3d789423cb27320aac5"
     },
     "Sources/CLI/DetectCommand.swift": {
       "sha256": "66e9d094c7586c012f68e6674a887917e31021913f912840d0e69e58c526ba35"
     },
     "Sources/CLI/KeyScopeCLI.swift": {
-      "sha256": "9b3563ca5d8242457488437f358f20a96e08656e2034c1ce360e7f5db485e583"
+      "sha256": "cc6000cd0486e23d11ea1b516daae8b45fbd14aabbe4d333381dea3236b4c303"
     },
     "Sources/Detection/ConfigurationScanner.swift": {
-      "sha256": "2ebb714bed7554505785840ac3e4d63d19e08749d4c5b8cf9c6ef04f1d8acc45"
+      "sha256": "caac454b9bd813c4bac73041aaed1623c089a63d73f345e6de755b88092c46cd"
     },
     "Sources/Detection/DetectionModels.swift": {
       "sha256": "fe094521a9d82218fa630b54800f5a63fd2e0bfead42ff9c870dd5f1e3acde2d"
@@ -52,13 +55,22 @@
       "sha256": "51abf419091f6ceb9c8febbe7eba5647e4a44a614af59cc0ff104c347616f00a"
     },
     "Sources/KeyScopeApp.swift": {
-      "sha256": "eb84c5ecd0b04a926cd3eed6a0d1fa585160ece93d3ae7c88e7444a8b406b416"
+      "sha256": "91090ae424c784261461f08e47374aa6778eefd8665f2532fbb46a952085ae9e"
+    },
+    "Sources/KeyScopeSettings.swift": {
+      "sha256": "3f7682abb6bb5218aa02eb6a1008db3c6c23fe68a26de6bffb99d01f5894d3d8"
     },
     "Sources/LaneSignal.swift": {
       "sha256": "198392da079a2c5d6fe524dd88c269a57a5b6ac820b85960382178c1661e0ea5"
     },
+    "Sources/ProductBasicsSelfTest.swift": {
+      "sha256": "0180ea801c01163ac12991c55ca3b53bf3866ec66f5f84c3cbe18aa8836ac66c"
+    },
     "Sources/ProductLifecycle.swift": {
-      "sha256": "78ddd84438d128bae04fd94de6197347260d778fca2e0f6d3a4ffdaa9f814cec"
+      "sha256": "d59ae8b9c8375738ff49dfd6017c89337b247c4263eb70c7f0d5b331dc2c8111"
+    },
+    "Sources/StorePreferences.swift": {
+      "sha256": "c9cc1800bad39586e96c5d0a44a4d0792e19dd52d2ef1673e19d5699f52907c6"
     },
     "Sources/WindowPermission.swift": {
       "sha256": "8d4c8d22cc815bf3ef1376c3fa1d23a7fa50831a933566b0af186c54b5927b31"

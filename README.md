@@ -16,15 +16,15 @@ KeyScope 是为新版 macOS 制作的原生快捷键诊断工具，面向遇到�
 最低 macOS 14，Apple Silicon。当前真实验收环境为 macOS 27；其他系统版本未逐一实测。
 
 <!-- lightweight:start -->
-## 资源占用（历史参考：1.0.4）
+## 资源占用
 
 | 安装包 | 空闲内存 | 空闲 CPU | 冷启动到首屏就绪 |
 |---|---|---|---|
-| **1.4 MB**（装好后 2.3 MB） | **25.2 MB** | **0%** | **336 ms** |
+| **1.4 MB**（装好后 2.4 MB） | **27.3 MB** | **0%** | **325 ms** |
 
 SwiftUI 与系统框架，零第三方依赖；无后台进程、登录项或定时任务。只在点「开始检测」后建立只读键盘监听，收到组合即停止；检测期间每 2 秒自检一次权限，结束即销毁。
 
-<sub>v1.0.4 (8) · Mac16,12 / Apple M4 / macOS 27.2 · 装机的 1.0.4 (8) 本地验收构建（Developer ID 签名，未公证、未发行）静默启动到首屏布局完成，不建立键盘监听；完整查询只读本机真实快捷键配置。下载大小取公开发行的 1.0.4 (5) DMG。 · 2026-10-07。数字来自所列设备实测，版本更新后重新测量。内存口径为 phys_footprint；CPU 为 60 秒采样窗内 CPU 时间 ÷ 墙钟；大小按十进制 MB。实测口径见[官网资源占用](https://keyscope.tianli.cyou/#light)。</sub>
+<sub>v1.0.5 (10) · Mac16,12 / Apple M4 / macOS 27.2 · 装机的 1.0.4 (7) 本地验收构建（Developer ID 签名，未公证、未发行）静默启动到首屏布局完成，不建立键盘监听；完整查询只读本机真实快捷键配置。下载大小取公开发行的 1.0.4 (5) DMG。 · 2026-10-15。数字来自所列版本与设备的测量记录；当前版本与测量范围以本页说明为准。内存口径为 phys_footprint；CPU 为 60 秒采样窗内 CPU 时间 ÷ 墙钟；大小按十进制 MB。实测口径见[官网资源占用](https://keyscope.tianli.cyou/#light)。</sub>
 <!-- lightweight:end -->
 
 以上为 1.0.4（8）的历史实测，下载体积来自公开 1.0.4（5）；不代表当前 1.0.5 的重新实测。
@@ -52,11 +52,13 @@ keyscope update install --dry-run --json  # 只看升级计划；安装需显式
 keyscope help
 ```
 
-除 `update install --yes` 外，命令只读：不写文件、不改配置。所有命令都不申请权限、不发送或合成按键；检查更新与安装升级匿名读取 GitHub 公开发行信息，安装另下载发行包。`detect` 需要终端已获“输入监控”权限，没有时立即退出（退出码 77）。
+检测与状态命令只读。`preferences`、`shortcuts`、`config` 和 `update options` 的修改需明确确认；导出只写指定文件，更新查询记录本机检查结果。所有命令都不申请权限、不发送或合成按键；检查更新与安装升级匿名读取 GitHub 公开发行信息，安装另下载发行包。`detect` 需要终端已获“输入监控”权限，没有时立即退出（退出码 77）。
 
 ## 配置与更新
 
-当前正式版本以 [最新 Release](https://github.com/zengtianli/KeyScope/releases/latest) 为准。「检查更新」读取最新公开发行，窗口与命令行使用同一个升级安装器。`keyscope update install --yes` 验证包散列和开发者签名后替换 KeyScope，成功后旧应用移入废纸篓。KeyScope 没有可迁移的设置，因此没有 iCloud 配置同步、导入或导出。`status` 可查询运行中窗口的监听和输入监控状态；窗口未运行时明确返回未知。
+当前正式版本以 [最新 Release](https://github.com/zengtianli/KeyScope/releases/latest) 为准。「配置与更新…」提供默认展开详情、应用刷新键（默认⌘L，可改或关闭）、可选 iCloud 同步和导入/导出；仅同步这些便携设置与更新选项，权限、目录授权和诊断结果留在本机。`keyscope preferences status`、`shortcuts status`、`config status`、`update options` 可读回同一份设置。
+
+「检查更新」读取最新公开发行，窗口与命令行使用同一个升级安装器。`keyscope update install --yes` 验证包散列和开发者签名后替换 KeyScope，成功后旧应用移入废纸篓，保留配置。`status` 可查询运行中窗口的监听和输入监控状态；窗口未运行时明确返回未知。iCloud 的本机隔离同步已验，苹果跨设备传输未在本次发行中实测。
 
 ## 检测范围
 

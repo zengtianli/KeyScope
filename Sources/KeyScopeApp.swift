@@ -7,6 +7,12 @@ enum KeyScopeMain {
     static func main() {
         let arguments = Array(CommandLine.arguments.dropFirst())
         let executable = CommandLine.arguments.first ?? ""
+        #if !APP_STORE
+        if arguments.first == "--product-basics-self-test", !KeyScopeCLI.invokedAsCommand(executable) {
+            guard arguments.count == 2 else { exit(2) }
+            NSApplication.shared.setActivationPolicy(.prohibited)
+            exit(ProductBasicsSelfTest.run(URL(fileURLWithPath:arguments[1],isDirectory:true)))
+        }
         // Offscreen UI self-test for acceptance: needs the window code, so it stays here. It writes
         // screenshots, so the output directory must be given explicitly and nothing else may follow.
         // Developer hook of the KeyScope executable only: run as `keyscope` it is an unknown option (exit 2),
@@ -42,6 +48,23 @@ enum KeyScopeMain {
         if KeyScopeCLI.handles(executable: executable, arguments: arguments) {
             exit(KeyScopeCLI.main(arguments))
         }
+        #else
+        if arguments.first == "--store-self-test" {
+            guard arguments.count == 1 || arguments == ["--store-self-test", "--resume"] else { exit(2) }
+            exit(StorePreferences.selfTest(resume: arguments.contains("--resume")))
+        }
+        if arguments.first == "--ui-self-test" {
+            guard arguments.count == 2, !arguments[1].isEmpty, !arguments[1].hasPrefix("-") else { exit(2) }
+            let application = NSApplication.shared
+            application.setActivationPolicy(.prohibited)
+            let delegate = AppDelegate()
+            exit(delegate.runUISelfTest(outDir: URL(fileURLWithPath: arguments[1], isDirectory: true)) ? 0 : 1)
+        }
+        if arguments.first?.hasPrefix("--") == true || (arguments.first.map { !$0.hasPrefix("-") } ?? false) {
+            fputs("KeyScope Mac App Store 版不提供命令行工具。\n", stderr); exit(2)
+        }
+        _ = executable
+        #endif
         let application = NSApplication.shared
         let delegate = AppDelegate()
         application.delegate = delegate
@@ -79,8 +102,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     /// answer to `keyscope status` asking whether Input Monitoring is allowed for this app and whether the permission
     /// card is showing. The lifecycle self-test runs this same function offscreen.
     func installLifecycle() {
+        #if !APP_STORE
+        AppLifecycleUI.shared.canInstallUpdate = { [weak model] in !(model?.isListening ?? false) }
         ProductLifecycle.installApp()
         WindowPermission.answerQuestions(cardVisible: { [model] in !model.permissionGranted })
+        #endif
     }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         if !flag { showWindow() }; return true
@@ -109,12 +135,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     @objc func refresh() { model.refresh() }
     @objc func clear() { model.clear() }
     @objc func openHelp() { NSWorkspace.shared.open(URL(string: "https://keyscope.tianli.cyou/#help")!) }
-    private func buildMenu() {
+    func buildMenu() {
         let main = NSMenu()
         let appMenu = NSMenu(title: "KeyScope")
         let appItem = NSMenuItem(); appItem.submenu = appMenu; main.addItem(appItem)
         appMenu.addItem(withTitle: "关于 KeyScope", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
+        #if !APP_STORE
         AppLifecycleUI.menuItems().forEach { appMenu.addItem($0) }
+        #endif
         appMenu.addItem(.separator())
         appMenu.addItem(withTitle: "隐藏 KeyScope", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
         appMenu.addItem(withTitle: "退出 KeyScope", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
@@ -132,10 +160,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         let helpItem=NSMenuItem(title:"帮助",action:nil,keyEquivalent:"");helpItem.submenu=help;main.addItem(helpItem)
         let guide=help.addItem(withTitle:"使用指南与官网",action:#selector(openHelp),keyEquivalent:"?");guide.target=self
         NSApp.mainMenu=main;NSApp.windowsMenu=windowMenu;NSApp.helpMenu=help
+        #if !APP_STORE
+        let settings = KeyScopeSettings.shared
+        settings.refreshAction = { [weak self] in self?.refresh() }
+        settings.changed = { [weak self] in self?.model.showDetails = settings.defaults.bool(forKey:KeyScopeSettings.detailsKey) }
+        detection.items.first { $0.title == "刷新结果" }?.keyEquivalent = ""
+        settings.shortcuts.installMenu()
+        #endif
     }
 }
 
 final class AppModel: ObservableObject {
+    #if APP_STORE
+    @Published var preferencesGranted = StorePreferences.isGranted
+    func allowPreferences() {
+        let selected = StorePreferences.chooseFolder()
+        preferencesGranted = StorePreferences.isGranted
+        status = selected ? "已允许只读偏好线索，可以手动查询组合键。"
+            : (preferencesGranted ? "已保留此前的目录授权。" : "未选择有效的 Preferences 文件夹，基本检测不受影响。")
+        if snapshot != nil { refresh() }
+    }
+    func revokePreferences() {
+        StorePreferences.revoke(); preferencesGranted = false
+        if snapshot != nil { refresh() }
+    }
+    #endif
     @Published var snapshot: DetectionSnapshot?
     @Published var isListening = false
     @Published var status = "点击开始，按下你想检查的快捷键。"
@@ -149,6 +198,9 @@ final class AppModel: ObservableObject {
     @Published var keyCode: UInt16 = 5
     private let detector = ShortcutDetector()
     init() {
+        #if !APP_STORE
+        showDetails = KeyScopeSettings.shared.defaults.bool(forKey:KeyScopeSettings.detailsKey)
+        #endif
         detector.onUpdate = { [weak self] value in
             guard let self else { return }
             self.snapshot = value
@@ -194,7 +246,11 @@ final class AppModel: ObservableObject {
     func refresh() {stop();scan(snapshot?.shortcut ?? manualShortcut)}
     private func scan(_ value: ShortcutSpec) {
         snapshot=detector.scan(value)
+        #if APP_STORE
+        status="已查询 \(value.displayName) 的系统热键、监听候选与已允许的偏好线索。"
+        #else
         status="已查询 \(value.displayName) 的系统绑定、已知配置与监听软件。"
+        #endif
     }
     func clear() {stop();snapshot=nil;showDetails=false;status="点击开始，按下你想检查的快捷键。"}
     var primaryFindings: [Finding] {snapshot?.primaryFindings ?? []}
@@ -221,6 +277,9 @@ struct ContentView: View {
                 VStack(alignment:.leading,spacing:20) {
                     hero
                     if !model.permissionGranted { permissionCard }
+                    #if APP_STORE
+                    preferencesCard
+                    #endif
                     if model.showManual {manualCard}
                     if let snapshot=model.snapshot {
                         if !model.primaryFindings.isEmpty {
@@ -303,14 +362,33 @@ struct ContentView: View {
     private var permissionCard: some View {
         VStack(alignment:.leading,spacing:12) {
             Label("首次使用：允许输入监控",systemImage:"hand.raised").font(.system(size:14,weight:.semibold))
+            #if APP_STORE
+            Text("输入监控用于实时检测。未授权也可手动查询系统热键与监听候选；其它软件的偏好线索需另行允许配置目录。")
+                .font(.system(size:12)).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true)
+            #else
             Text("KeyScope 需要输入监控权限来检查你按下的组合键。查询系统绑定与已知配置仍可使用“手动选择”。")
                 .font(.system(size:12)).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true)
+            #endif
             HStack {
                 Button("打开输入监控设置") {model.openPermissionSettings()}.buttonStyle(.bordered)
                 Button("重新检查权限") {model.checkPermission()}.buttonStyle(.bordered)
             }
         }.padding(17).frame(maxWidth:.infinity,alignment:.leading).background(Color(red:1,green:0.974,blue:0.91),in:RoundedRectangle(cornerRadius:15))
     }
+    #if APP_STORE
+    private var preferencesCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label("偏好线索（可选）", systemImage: "folder.badge.gearshape").font(.system(size:14,weight:.semibold))
+            Text(StorePreferences.description).font(.system(size:12)).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true)
+            HStack {
+                Button("允许 Preferences 文件夹…") { model.allowPreferences() }.buttonStyle(.bordered)
+                if model.preferencesGranted {
+                    Button("取消目录授权") { model.revokePreferences() }.buttonStyle(.bordered)
+                }
+            }
+        }.padding(17).frame(maxWidth:.infinity,alignment:.leading).background(.white,in:RoundedRectangle(cornerRadius:15))
+    }
+    #endif
     private var manualCard: some View {
         VStack(alignment:.leading,spacing:14) {
             Text("手动选择").font(.system(size:15,weight:.semibold))
@@ -422,18 +500,32 @@ extension AppDelegate {
         let main = NSApp.mainMenu
         let tops = main?.items.map(\.title) ?? []
         let detection = main?.items.first { $0.title == "检测" }?.submenu?.items ?? []
-        let expected: [(String, String)] = [("开始 / 停止检测", "r"), ("手动选择", "k"), ("刷新结果", "l"), ("清空", "\u{8}")]
-        checks["menu_structure"] = tops.count == 4 && tops.dropFirst().elementsEqual(["检测", "窗口", "帮助"])
+        #if APP_STORE
+        let refreshKey = "l", sections = ["检测", "窗口", "帮助"]
+        #else
+        let refreshKey = "", sections = ["检测", "窗口", "帮助", "操作"]
+        #endif
+        let expected: [(String, String)] = [("开始 / 停止检测", "r"), ("手动选择", "k"), ("刷新结果", refreshKey), ("清空", "\u{8}")]
+        checks["menu_structure"] = tops.count == sections.count + 1 && tops.dropFirst().elementsEqual(sections)
             && detection.map(\.title) == expected.map(\.0) && detection.map(\.keyEquivalent) == expected.map(\.1)
         let owned = (main?.items ?? []).flatMap { $0.submenu?.items ?? [] }.filter { $0.target != nil }
         // Six items belong to this delegate (four detection actions, 显示主窗口, 使用指南与官网). Since 1.0.4 the
         // app menu also carries the shared lifecycle pair, which is wired to the AppLifecycleUI singleton.
+        #if APP_STORE
+        checks["menu_actions_wired"] = owned.count == 6 && owned.allSatisfy { item in
+            guard let action = item.action, let target = item.target as? NSObject else { return false }
+            return target.responds(to: action)
+        }
+        checks["no_store_updater_menu"] = !(main?.items ?? []).flatMap { $0.submenu?.items ?? [] }
+            .contains { $0.title.contains("更新") || $0.title.contains("升级") }
+        #else
         let lifecycle = owned.filter { $0.target === AppLifecycleUI.shared }
-        checks["menu_actions_wired"] = owned.count == 8 && owned.filter { $0.target === self }.count == 6
+        checks["menu_actions_wired"] = owned.count == 9 && owned.filter { $0.target === self }.count == 6
             && lifecycle.map(\.title) == ["配置与更新…", "检查更新…"]
             && owned.allSatisfy { item in
                 guard let action = item.action, let target = item.target as? NSObject else { return false }
                 return target.responds(to: action) }
+        #endif
         let standard = (main?.items ?? []).flatMap { $0.submenu?.items ?? [] }.filter { !$0.isSeparatorItem && $0.target == nil }
         checks["menu_standard_actions"] = standard.count == 5 && standard.allSatisfy { $0.action != nil }
         func menuAction(_ title: String) -> Bool {
@@ -458,9 +550,14 @@ extension AppDelegate {
 
         // "查询此组合": read-only configuration scan of the chosen combination.
         model.query()
+        #if APP_STORE
+        checks["query_scans_manual_shortcut"] = model.snapshot?.shortcut == manual && !model.showManual && !model.isListening
+            && model.status.hasPrefix("已查询 ") && !(model.snapshot?.notes.isEmpty ?? true)
+        #else
         checks["query_scans_manual_shortcut"] = model.snapshot?.shortcut == manual && !model.showManual && !model.isListening
             && model.status == "已查询 \(manual.displayName) 的系统绑定、已知配置与监听软件。"
             && !(model.snapshot?.checkedSources.isEmpty ?? true)
+        #endif
         checks["render_result"] = render("native-ui-result.png")
         model.showDetails = true
         checks["render_details"] = render("native-ui-details.png", height: 1100)
@@ -498,6 +595,7 @@ extension AppDelegate {
 }
 
 // In-process offscreen lifecycle self-test (`--lifecycle-self-test <dir>`): this process is the running window.
+#if !APP_STORE
 // It runs the same installLifecycle() and buildMenu() a launch runs, with activation policy .prohibited (no Dock
 // icon, nothing ordered front, never active), builds the shared「配置与更新」window offscreen, and then keeps the run
 // loop turning so the real `keyscope` commands can ask it. Product code never starts a process: the commands are
@@ -534,14 +632,14 @@ extension AppDelegate {
         let lifecycle = appMenu.filter { $0.target === AppLifecycleUI.shared }
         checks["menu_has_settings_and_check_for_updates"] = lifecycle.map(\.title) == ["配置与更新…", "检查更新…"]
             && lifecycle.allSatisfy { item in item.action.map { AppLifecycleUI.shared.responds(to: $0) } ?? false }
-        // The shared window, built by the same code as the menu item, never ordered in. KeyScope passes no
-        // configuration, so the 配置 group (iCloud switch, export, import) must not be in it.
+        // The same shared settings window now includes the portable configuration group.
+        // Build it without ordering it in; interactive controls are covered by product-basics.
         let shot = (try? AppLifecycleUI.shared.offscreenSnapshot(to: outDir.appendingPathComponent("lifecycle-settings.png"))) ?? [:]
         checks["settings_window_built_offscreen"] = shot["upgrade_window_offscreen"] == true && shot["upgrade_image_rendered"] == true
             && shot["upgrade_native_titlebar"] == true
         checks["check_for_updates_button_wired"] = shot["upgrade_actual_button_target"] == true
         let cloudSwitch = Mirror(reflecting: AppLifecycleUI.shared).descendant("cloudToggle") as? NSView
-        checks["no_configuration_group_without_portable_settings"] = cloudSwitch != nil && cloudSwitch?.window == nil
+        checks["portable_configuration_group_present"] = KeyScopeSettings.shared.configuration.hasSettings && cloudSwitch?.window != nil
         checks["nothing_visible_or_active"] = !NSApp.isActive && NSApp.windows.allSatisfy { !$0.isVisible }
             && NSApp.activationPolicy() == .prohibited
 
@@ -586,3 +684,4 @@ extension AppDelegate {
         return ok
     }
 }
+#endif

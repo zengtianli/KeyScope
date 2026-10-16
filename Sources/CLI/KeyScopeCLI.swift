@@ -46,6 +46,11 @@ enum KeyScopeCLI {
             return ExitCode.usage
         }
         let rest = Array(arguments.dropFirst())
+        if command == "config" { return ProductLifecycle.run(arguments) }
+        if command == "preferences" || command == "shortcuts" {
+            if rest.contains("--help") || rest.contains("-h") { writeOut(help(command) + "\n");return 0 }
+            return KeyScopeSettings.command(rest)
+        }
         switch command {
         case "--help", "-h", "help":
             if rest == ["--help"] || rest == ["-h"] { writeOut(help(command == "help" ? "help" : nil) + "\n"); return ExitCode.ok }
@@ -77,7 +82,7 @@ enum KeyScopeCLI {
         }
     }
 
-    static let topics = ["scan", "detect", "status", "keys", "update", "version", "help"]
+    static let topics = ["scan", "detect", "status", "keys", "update", "version", "help", "config", "preferences", "shortcuts"]
 
     // MARK: - Output
 
@@ -462,42 +467,12 @@ enum KeyScopeCLI {
                 窗口从访达、Dock 或 open 启动时这一份记在 KeyScope.app 名下；从终端直接执行可执行文件启动的窗口，读到的是那个终端的。
             只读：不申请权限、不写文件；问窗口只是一问一答，不改变窗口显示的内容。输入监控设置：\(inputMonitoringSettingsURL)
             """
-        case "update":
-            return """
-            keyscope update — 检查更新与升级（窗口 KeyScope 菜单的「检查更新…」，「配置与更新…」窗口里的「检查更新」、结果一行与「升级到新版…」）
-
-            用法：
-              keyscope update check [--json]
-              keyscope update install --yes [--dry-run] [--json]
-
-            update check：\(ProductLifecycle.updateSummary)
-            update install：\(ProductLifecycle.installSummary)
-            KeyScope 的发行渠道是公开的 GitHub 发行记录（zengtianli/KeyScope）：两条命令都匿名联网读一次最新发行，不带任何本机数据；
-            install 在有新版并确认后，另从这条发行记录下载安装包。
-            update check --json：{"ok": true, "schema": 1, "command": "update check", "current": {"version", "build"}, "source": {"kind", "repository"},
-                     "latest": {"version", "build", "download_url", "release_url", "sha256", "size_bytes", "channel"},
-                     "update_available", "state", "message", "upgrade": {"in_app", "button", "how", "download_url", "command"}}
-              state：update_available（有新版）| up_to_date（已是此渠道最新版）| ahead_of_channel（本机版本高于此渠道的正式发行）
-              upgrade.how 写明怎么升级；upgrade.command 是可直接运行的升级命令（这个安装位置或渠道不能由命令替换时为 null，窗口里是「下载新版…」）。
-              check 只读：不下载、不安装、不写文件、不改任何设置。
-            update install --json：{"ok": true, "schema": 1, "command": "update install", "current", "latest", "source", "app_running", "installed", "state", "message", …}
-              没有新版：installed 为 false，state 为 up_to_date 或 ahead_of_channel，什么都不做（带不带 --yes 都一样）。
-              --dry-run（有新版时）：另有 dry_run: true、would_install {from, to}、installation、will_quit_app、will_relaunch；不下载、不替换。
-              装上：installed 为 true，state 为 installed，另有 previous {version, build}、current（换好后磁盘上的版本）、backup（成功为 null）、
-                old_app_cleanup（"trashed"：旧 App 已移到废纸篓）、relaunched（原来在运行的窗口是否已重新打开）。
-              有新版但没带 --yes：什么都不做，error.code 为 confirmation_required。
-            失败：{"ok": false, "schema": 1, "command", "error": {"code", "message"}}，原因同时写到 stderr；check_incomplete 另带 current、source，
-              读到发行记录之后的失败（manual_install 到 cleanup_failed）另带 current、latest、source、app_running。error.code：
-              check_incomplete（没读到发行记录：断网、限流等）· manual_install（这个安装位置或渠道不能由命令替换，带 download_url）·
-              needs_product_installer（发行记录要求专用安装事务）· upgrade_failed（下载或验证未通过，当前 App 未动）·
-              app_busy（运行中的 KeyScope 没有退出，未替换）· replace_failed（替换未完成，旧版已保留或已回滚）·
-              cleanup_failed（新版已装上并验证，旧包清理失败并保留）· confirmation_required（缺 --yes）· usage（参数不对）
-            退出码：0 已读到发行记录且没有出错（有没有新版都是 0）；1 未完成（上面除最后两个以外的 error.code）；
-                    2 参数错误（usage），或有新版但缺 --yes（confirmation_required）。
-            update install 是 KeyScope 唯一会写东西的命令：它替换 KeyScope.app 本身（运行中的窗口先退出、换好再重开），不改快捷键，
-            不动别的软件的配置；下载与验证最长等 330 秒。它不弹窗、不抢焦点、不申请权限。
-            KeyScope 没有可迁移的配置，所以没有 config 命令（窗口里也没有「配置」这一组）。
-            """
+        case "update", "config":
+            return AppLifecycleCLI.help(commandName)
+        case "preferences":
+            return "keyscope preferences status [--json]\nkeyscope preferences set --details on|off --yes [--json]\n与原生设置界面的默认详情开关读写同一份配置。"
+        case "shortcuts":
+            return "keyscope shortcuts status [--json]\nkeyscope shortcuts enable|disable --yes [--json]\nkeyscope shortcuts bind <字母或数字> --yes [--json]\n应用内刷新快捷键；默认⌘L，拒绝系统保留键和现有菜单冲突。"
         case "keys":
             return """
             keyscope keys — 列出可用按键名（与窗口「手动选择」的列表相同）、键码与修饰键写法
@@ -522,21 +497,27 @@ enum KeyScopeCLI {
                                                     等真人按下组合键，报告实际接收的软件（窗口的「开始检测」；超时或 Ctrl-C 即「停止检测」）
               keyscope status [--json]               版本、输入监控权限（调用方的，以及 KeyScope 窗口自己的）、安全键盘输入、窗口是否在运行、是否正在检测
               keyscope keys [--json]                 按键名、键码与修饰键写法
+              keyscope preferences status [--json]  默认详情设置；set --details on|off --yes 修改
+              keyscope shortcuts status [--json]   应用刷新键；enable|disable|bind <字母> --yes 修改
+              keyscope config status [--json]      iCloud 状态；export/import/sync 沿共享配置层
+              keyscope update options [--json]     自动检查等选项；用 help update 查看完整写法
               keyscope update check [--json]         \(ProductLifecycle.updateSummary)
               keyscope update install --yes [--dry-run] [--json]
                                                     \(ProductLifecycle.installSummary)
               keyscope version [--json]              版本
               keyscope help [<命令>]                 某个命令的详细说明
 
-            读命令：scan、detect、status、keys、update check、version、help。写命令：update install（只替换 KeyScope.app 本身，要带 --yes；
-              产品没有可改的设置，别的命令不写任何文件或状态）。
+            读命令：scan、detect、status、keys、version、help，以及 preferences/shortcuts/config status、update options 查询。
+            写命令：preferences、shortcuts、config、update options 的修改需明确确认；update install --yes 替换本 App。
+            查询不申请权限；update check 记录本机检查结果。preferences、shortcuts、config、update options 的修改需明确确认，
+              config export 写指定文件；update install --yes 只替换 KeyScope.app 本身，保留本机配置。
             快捷键写法：ctrl+g、cmd+shift+4、right-cmd+b、ctrl+page up、⌃⇧G、f5、ctrl+0x05；结果里的显示名可原样传回
             scan 与 detect 也接受 --key-code <键码> [--modifiers <CGEventFlags>]；detect --trace 把派发诊断写到 stderr
             --json 输出稳定对象 {"ok": true, "schema": 1, "command": …}；失败时 {"ok": false, "error": {"code", "message"}}。
             退出码：0 成功；1 内部错误，或 update check / update install 未完成（error.code 见 keyscope help update）；
                     2 参数错误，或 update install 有新版但缺 --yes（error.code 为 confirmation_required）；
                     3 detect 超时未收到按键；77 没有输入监控权限（不会弹出授权）；130 / 143 detect 被 Ctrl-C / SIGTERM 中断。
-            除 update install 外所有命令只读：不写文件、不改快捷键或配置。所有命令都不申请权限、不发送或合成按键。
+            所有命令都不申请权限、不发送或合成按键；设置修改与窗口使用相同的产品和共享能力。
             只有 update check 与 update install 联网（匿名读公开发行记录；install 确认后另下载安装包）。
             仅在窗口中（命令不做；相关路径与链接在读命令的结果里）：
               打开输入监控设置并授权（只能真人在系统设置里开；链接见 status 的 inputMonitoring.settingsURL）

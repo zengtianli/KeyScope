@@ -11,12 +11,23 @@ struct ConfigurationScanner {
 
     func scan(_ shortcut: ShortcutSpec) -> DetectionSnapshot {
         var snapshot = DetectionSnapshot(shortcut: shortcut, findings: [], notes: [], checkedSources: [], observedAt: Date())
+        #if APP_STORE
+        system(shortcut, into: &snapshot)
+        let granted = StorePreferences.withFolder { folder in
+            knownPreferences(shortcut, directory: folder, into: &snapshot)
+        }
+        snapshot.notes.append(granted
+            ? "系统热键通过 macOS 接口查询；另只扫描已允许的 Preferences 文件夹中的 Rectangle、Maccy、Raycast 和 MonitorControl 偏好。系统绑定或配置匹配不等于已观察到接收进程。"
+            : "商店版默认通过 macOS 接口查询已启用的系统热键，并提供热键接收结果与监听候选。其它软件的偏好线索未启用，可选择允许 Preferences 文件夹；系统热键查询不需要文件授权。")
+        snapshot.notes.append("商店版不读取系统快捷键偏好文件，不扫描 Keyboard Maestro 的 Application Support、Karabiner/skhd 的 .config、.skhdrc、Hammerspoon 脚本，也不枚举登录项。")
+        #else
         system(shortcut, into: &snapshot)
         keyboardMaestro(shortcut, into: &snapshot)
         karabiner(shortcut, into: &snapshot)
         skhd(shortcut, into: &snapshot)
         hammerspoon(shortcut, into: &snapshot)
         knownPreferences(shortcut, into: &snapshot)
+        #endif
         listeners(into: &snapshot)
         snapshot.notes.append("配置能证明存在对应规则；软件是否已加载、应用范围及条件是否满足，仍需结合实时结果。未检出不代表没有占用。")
         snapshot.notes.append("按物理键位匹配，字母标记采用美式键盘；系统菜单、浏览器扩展、任意脚本与未支持工具的私有配置不在完整扫描范围内。")
@@ -233,10 +244,10 @@ struct ConfigurationScanner {
         return result
     }
 
-    private func knownPreferences(_ shortcut: ShortcutSpec, into snapshot: inout DetectionSnapshot) {
+    private func knownPreferences(_ shortcut: ShortcutSpec, directory: URL? = nil, into snapshot: inout DetectionSnapshot) {
         let apps = [("Rectangle", "com.knollsoft.Rectangle"), ("Maccy", "org.p0deje.Maccy"), ("Raycast", "com.raycast.macos"), ("MonitorControl", "me.guillaumeb.MonitorControl")]
         for (name, bundle) in apps {
-            let url = home.appendingPathComponent("Library/Preferences/\(bundle).plist")
+            let url = (directory ?? home.appendingPathComponent("Library/Preferences")).appendingPathComponent("\(bundle).plist")
             guard let data = read(url, source: "\(name) 快捷键偏好", into: &snapshot),
                   let root = (try? PropertyListSerialization.propertyList(from: data, format: nil)) as? [String: Any] else { continue }
             for (key, raw) in root {
